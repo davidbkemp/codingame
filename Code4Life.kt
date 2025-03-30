@@ -1,5 +1,6 @@
 
 
+
 import java.util.*
 import java.io.*
 import java.math.*
@@ -39,7 +40,6 @@ fun main(args : Array<String>) {
                 it to input.nextInt()
             }.toMap()
         
-
             robots.add(Robot(target, score, storage, expertise))
         }
         val availability: Map<Molecule, Int> = Molecule.values().map {
@@ -88,7 +88,17 @@ fun main(args : Array<String>) {
                 println("GOTO MOLECULES")
             }
         } else if (myRobot.target == "MOLECULES") {
-            fillStorage(myRobot, mySamples.first(), availability)
+            System.err.println("can prov: ${mySamples.filter{myRobot.canProvision(it, availability)}}")
+
+            val target = mySamples.filter{myRobot.canProvision(it, availability)}.firstOrNull()
+            System.err.println("target $target")
+            if (target != null) {
+                fillStorage(myRobot, target, availability)
+            } else if (mySamples.size == 3) {
+                println("WAIT")
+            } else {
+                println("GOTO SAMPLES")
+            }
         } else {
             if (myRobot.target != "LABORATORY") {
                 throw IllegalStateException("${myRobot.target} instead of LABORATORY")
@@ -132,6 +142,22 @@ data class Robot(val target: String, val score: Int, val storage: Map<Molecule, 
         return effectiveCosts.sum() <= 10 &&
             effectiveCosts.find { it > 5 } == null
     }
+
+    fun additionalRequired(sample: Sample) : Map<Molecule, Int> {
+        return Molecule.values().map {
+            it to Math.max(0, sample.costs[it]!! - storage[it]!! - expertise[it]!!)
+        }.toMap()
+    }
+
+    fun canProvision(sample: Sample, availability: Map<Molecule, Int>): Boolean {
+        val req = additionalRequired(sample)
+        return req.values.sum() <= 10 - storage.values.sum()
+         && Molecule.values().all {
+            req[it]!! <= availability[it]!!
+         }
+    }
+
+
 }
 
 fun fillStorage(robot: Robot, sample: Sample, availability: Map<Molecule, Int>) {
