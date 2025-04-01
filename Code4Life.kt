@@ -1,6 +1,5 @@
 
 
-
 import java.util.*
 import java.io.*
 import java.math.*
@@ -94,9 +93,10 @@ fun main(args : Array<String>) {
             System.err.println("target $target")
             if (target != null) {
                 fillStorage(myRobot, target, availability)
-            } else if (mySamples.size == 3) {
+            } else if (mySamples.size >= 2) {
                 println("WAIT")
             } else {
+                loopNum = loopNum + 1
                 println("GOTO SAMPLES")
             }
         } else {
