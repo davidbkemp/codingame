@@ -28,18 +28,18 @@ data class Board(val cells: IntArray) {
         if (depth <= 0 || isComplete()) {
             return boardHash()
         } else {
-            val emptySlots = (0 until cells.size).filter { cells[it] == 0 }
+            val emptyCells = (0 until cells.size).filter { cells[it] == 0 }
             val result: Int =
-                    emptySlots.fold(0) { acc, target ->
-                        addHashes(acc, solveForSlot(depth - 1, target))
+                    emptyCells.fold(0) { acc, cell ->
+                        addHashes(acc, solveForCell(depth - 1, cell))
                     }
             return result
         }
     }
 
-    fun solveForSlot(depth: Int, target: Int): Int {
+    fun solveForCell(depth: Int, cell: Int): Int {
         val newCells = cells.copyOf()
-        newCells[target] = 1
+        newCells[cell] = 1
         return Board(newCells).solve(depth - 1)
     }
 
