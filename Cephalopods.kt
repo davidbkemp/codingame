@@ -6,10 +6,6 @@ val BOARD_WIDTH = 3
 val BOARD_HEIGHT = 3
 val BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT
 
-fun boardToString(board: IntArray): String {
-    return board.toList().toString()
-}
-
 /**
  * Auto-generated code below aims at helping you parse the standard input according to the problem
  * statement.
@@ -17,42 +13,41 @@ fun boardToString(board: IntArray): String {
 fun main(args: Array<String>) {
     val input = Scanner(System.`in`)
     val depth = input.nextInt()
-    /**
-     * val initialBoard = ArrayList<List<Int>>(3)
-     *
-     * for (i in 0 until 3) { val row = ArrayList<Int>(3) initialBoard.add(row) for (j in 0 until 3)
-     * { row.add(input.nextInt()) } }
-     */
-    val initialBoard = IntArray(BOARD_SIZE) { _ -> input.nextInt() }
+
+    val initialBoard = Board(IntArray(BOARD_SIZE) { _ -> input.nextInt() })
 
     System.err.println("Depth is: $depth")
-    System.err.println("Initial board: ${boardToString(initialBoard)}")
+    System.err.println("Initial board: ${initialBoard}")
 
-    // Write an action using println()
-    // To debug: System.err.println("Debug messages...");
-
-    println(solve(depth, initialBoard))
+    println(initialBoard.solve(depth))
 }
 
-fun solve(depth: Int, board: IntArray): Int {
-    if (depth <= 0 || isComplete(board)) {
-        return boardHash(board)
-    } else {
-        val emptySlots = (0 until board.size).filter { board[it] == 0 }
-        val result: Int =
-                emptySlots.fold(0) { acc, target ->
-                    (acc + solveForSlot(depth - 1, board, target)) % (1 shl 30)
-                }
-        return result
+data class Board(val cells: IntArray) {
+
+    fun solve(depth: Int): Int {
+        if (depth <= 0 || isComplete()) {
+            return boardHash()
+        } else {
+            val emptySlots = (0 until cells.size).filter { cells[it] == 0 }
+            val result: Int =
+                    emptySlots.fold(0) { acc, target ->
+                        addHashes(acc, solveForSlot(depth - 1, target))
+                    }
+            return result
+        }
     }
+
+    fun solveForSlot(depth: Int, target: Int): Int {
+        val newCells = cells.copyOf()
+        newCells[target] = 1
+        return Board(newCells).solve(depth - 1)
+    }
+
+    fun isComplete(): Boolean = cells.all { it > 0 }
+
+    fun boardHash(): Int = cells.fold(0) { acc, x -> addHashes(10 * acc, x) }
+
+    override fun toString(): String = cells.toList().toString()
 }
 
-fun solveForSlot(depth: Int, board: IntArray, target: Int): Int {
-    val newBoard = board.copyOf()
-    newBoard[target] = 1
-    return solve(depth - 1, newBoard)
-}
-
-fun isComplete(board: IntArray): Boolean = board.all { it > 0 }
-
-fun boardHash(board: IntArray): Int = board.fold(0) { acc, x -> (10 * acc + x) % (1 shl 30) }
+fun addHashes(h1: Int, h2: Int): Int = (h1 + h2) % (1 shl 30)
