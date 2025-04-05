@@ -19,6 +19,7 @@ fun main(args: Array<String>) {
     System.err.println("Depth is: $depth")
     System.err.println("Initial board: ${initialBoard}")
     testNeighboursOfCell()
+    testAttackCombinations()
 
     println(initialBoard.solve(depth))
 }
@@ -78,3 +79,30 @@ fun testNeighboursOfCell() {
     if (neighboursOfCell(4).toSet()  != listOf(1, 3, 5, 7).toSet() ) throw IllegalStateException("neighboursOfCell(4) was ${neighboursOfCell(4)}")
     if (neighboursOfCell(8).toSet()  != listOf(7, 5).toSet() ) throw IllegalStateException("neighboursOfCell(8) was ${neighboursOfCell(8)}")
 }
+
+fun attackCombinations(items: List<Int>): List<List<Int>> {
+    if (items.size < 2) return emptyList()
+    if (items.size == 2) return listOf(items)
+    val result = ArrayList<List<Int>>()
+    result.add(items)
+    val smallerCombinations: List<List<Int>> = items.flatMap {item -> attackCombinations(items.filter {it != item})}
+    result.addAll(smallerCombinations)
+    return result
+}
+
+fun testAttackCombinations() {
+    if (!attackCombinations(listOf(1,2,3,4)).map{it.toSet()}.toSet().equals(setOf(
+            setOf(1,2,3,4),
+            setOf(1,2,3),
+            setOf(1,3,4),
+            setOf(2,3,4),
+            setOf(1,2),
+            setOf(1,3),
+            setOf(1,4),
+            setOf(2,3),
+            setOf(2,4),
+            setOf(3,4))
+        )
+        ) throw IllegalStateException("Combos was ${attackCombinations(listOf(1,2,3,4))}")
+}
+
