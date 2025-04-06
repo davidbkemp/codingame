@@ -19,7 +19,7 @@ fun main(args: Array<String>) {
     System.err.println("Depth is: $depth")
     System.err.println("Initial board: ${initialBoard}")
     testNeighboursOfCell()
-    testAttackCombinations()
+    testCombinations()
 
     println(initialBoard.solve(depth))
 }
@@ -80,6 +80,24 @@ fun testNeighboursOfCell() {
     if (neighboursOfCell(8).toSet()  != listOf(7, 5).toSet() ) throw IllegalStateException("neighboursOfCell(8) was ${neighboursOfCell(8)}")
 }
 
+fun combinations(items: List<Int>): List<List<Int>> {
+    if (items.size == 0) {
+        return emptyList()
+    } else {
+        val head: Int = items.first()
+        val tail: List<Int> = items.takeLast(items.size - 1)
+        val tailCombinations: List<List<Int>> = combinations(tail)
+        val result: ArrayList<List<Int>> = arrayListOf(listOf(head))
+        result.addAll(tailCombinations)
+        result.addAll(tailCombinations.map {
+            val r = arrayListOf(head)
+            r.addAll(it)
+            r
+        })
+        return result
+    }
+}
+
 fun attackCombinations(items: List<Int>): List<List<Int>> {
     if (items.size < 2) return emptyList()
     if (items.size == 2) return listOf(items)
@@ -90,10 +108,12 @@ fun attackCombinations(items: List<Int>): List<List<Int>> {
     return result
 }
 
-fun testAttackCombinations() {
-    if (!attackCombinations(listOf(1,2,3,4)).map{it.toSet()}.toSet().equals(setOf(
+fun testCombinations() {
+    val actual: Set<Set<Int>> = combinations(listOf(1,2,3,4)).map{it.toSet()}.toSet()
+    val expected: Set<Set<Int>> = setOf(
             setOf(1,2,3,4),
             setOf(1,2,3),
+            setOf(1,2,4),
             setOf(1,3,4),
             setOf(2,3,4),
             setOf(1,2),
@@ -101,8 +121,14 @@ fun testAttackCombinations() {
             setOf(1,4),
             setOf(2,3),
             setOf(2,4),
-            setOf(3,4))
-        )
-        ) throw IllegalStateException("Combos was ${attackCombinations(listOf(1,2,3,4))}")
+            setOf(3,4),
+            setOf(1),
+            setOf(2),
+            setOf(3),
+            setOf(4)
+            )
+        System.err.println("actual - expected: ${actual - expected}")
+        System.err.println("expected: $expected")
+        if (actual != expected) throw IllegalStateException("Combos was ${combinations(listOf(1,2,3,4))}")
 }
 
