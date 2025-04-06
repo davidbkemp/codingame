@@ -87,26 +87,12 @@ fun combinations(items: List<Int>): List<List<Int>> {
         val head: Int = items.first()
         val tail: List<Int> = items.takeLast(items.size - 1)
         val tailCombinations: List<List<Int>> = combinations(tail)
-        val result: ArrayList<List<Int>> = arrayListOf(listOf(head))
-        result.addAll(tailCombinations)
-        result.addAll(tailCombinations.map {
-            val r = arrayListOf(head)
-            r.addAll(it)
-            r
-        })
-        return result
+        return listOf(listOf(head))
+            .plus(tailCombinations)
+            .plus(tailCombinations.map{it.plus(head)})
     }
 }
 
-fun attackCombinations(items: List<Int>): List<List<Int>> {
-    if (items.size < 2) return emptyList()
-    if (items.size == 2) return listOf(items)
-    val result = ArrayList<List<Int>>()
-    result.add(items)
-    val smallerCombinations: List<List<Int>> = items.flatMap {item -> attackCombinations(items.filter {it != item})}
-    result.addAll(smallerCombinations)
-    return result
-}
 
 fun testCombinations() {
     val actual: Set<Set<Int>> = combinations(listOf(1,2,3,4)).map{it.toSet()}.toSet()
@@ -127,8 +113,9 @@ fun testCombinations() {
             setOf(3),
             setOf(4)
             )
-        System.err.println("actual - expected: ${actual - expected}")
-        System.err.println("expected: $expected")
+ //       System.err.println("actual - expected: ${actual - expected}")
+ //       System.err.println("expected: $expected")
         if (actual != expected) throw IllegalStateException("Combos was ${combinations(listOf(1,2,3,4))}")
 }
+
 
