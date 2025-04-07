@@ -6,6 +6,8 @@ val BOARD_WIDTH = 3
 val BOARD_HEIGHT = 3
 val BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT
 
+val solutionCache: HashMap<Int, Int> = HashMap<Int, Int>()
+
 /**
  * Auto-generated code below aims at helping you parse the standard input according to the problem
  * statement.
@@ -21,6 +23,7 @@ fun main(args: Array<String>) {
 //    testNeighboursOfCell()
 //    testCombinations()
 //    testMovesForCell()
+  //  testHash()
 
     println(initialBoard.solve(depth))
 }
@@ -32,13 +35,17 @@ data class Board(val cells: IntArray) {
     fun solve(depth: Int): Int {
 //        System.err.println("depth $depth, board: $this")
         if (depth <= 0 || isComplete()) {
-            return boardHash()
+            return hashCode()
+        } else if (solutionCache.containsKey(this.hash)) {
+ //           System.err.println("Using cached value for $this")
+            return solutionCache[this.hash]!!
         } else {
             val emptyCells = (0 until cells.size).filter { cells[it] == 0 }
             val result: Int =
                     emptyCells.fold(0) { acc, cell ->
                         addHashes(acc, solveForCell(depth, cell))
                     }
+            solutionCache[this.hash] = result
             return result
         }
     }
@@ -79,12 +86,21 @@ data class Board(val cells: IntArray) {
 
     fun isComplete(): Boolean = cells.all { it > 0 }
 
-    fun boardHash(): Int = cells.fold(0) { acc, x -> addHashes(10 * acc, x) }
+    val hash: Int = cells.fold(0) { acc, x -> addHashes(10 * acc, x) }
+
+    override fun hashCode(): Int = hash
 
     override fun toString(): String = cells.toList().toString()
 }
 
 fun addHashes(h1: Int, h2: Int): Int = (h1 + h2) % (1 shl 30)
+
+fun testHash() {
+    val b1 = Board(intArrayOf(1,2,3,1,2,3,1,2,3))
+    val b2 = Board(intArrayOf(1,2,3,1,2,3,1,2,3))
+    if (b1.hash != b2.hash) throw IllegalStateException("hash ${b1.hash}")
+
+}
 
 fun testMovesForCell() {
     val moves = Board(intArrayOf(0, 1, 0, 2, 0, 3, 0, 4, 0)).movesForCell(4)
