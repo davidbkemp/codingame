@@ -6,7 +6,8 @@ val BOARD_WIDTH = 3
 val BOARD_HEIGHT = 3
 val BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT
 
-val solutionCache: HashMap<Int, Int> = HashMap<Int, Int>()
+val solutionCache: HashMap<Pair<Int, Int>, Int> = HashMap<Pair<Int, Int>, Int>()
+
 
 /**
  * Auto-generated code below aims at helping you parse the standard input according to the problem
@@ -24,6 +25,7 @@ fun main(args: Array<String>) {
 //    testCombinations()
 //    testMovesForCell()
   //  testHash()
+ //   testAllZeros()
 
     println(initialBoard.solve(depth))
 }
@@ -33,19 +35,18 @@ data class Move(val cell: Int, val captures: List<Int>, val value: Int)
 data class Board(val cells: IntArray) {
 
     fun solve(depth: Int): Int {
-//        System.err.println("depth $depth, board: $this")
+        val cacheKey = Pair(depth, this.hash)
         if (depth <= 0 || isComplete()) {
             return hashCode()
-        } else if (solutionCache.containsKey(this.hash)) {
- //           System.err.println("Using cached value for $this")
-            return solutionCache[this.hash]!!
+        } else if (solutionCache.containsKey(cacheKey)) {
+            return solutionCache[cacheKey]!!
         } else {
             val emptyCells = (0 until cells.size).filter { cells[it] == 0 }
             val result: Int =
                     emptyCells.fold(0) { acc, cell ->
                         addHashes(acc, solveForCell(depth, cell))
                     }
-            solutionCache[this.hash] = result
+            solutionCache[cacheKey] = result
             return result
         }
     }
@@ -93,7 +94,7 @@ data class Board(val cells: IntArray) {
     override fun toString(): String = cells.toList().toString()
 }
 
-fun addHashes(h1: Int, h2: Int): Int = (h1 + h2) % (1 shl 30)
+fun addHashes(h1: Int, h2: Int): Int = (h1.toLong() + h2.toLong()).mod(1 shl 30).toInt()
 
 fun testHash() {
     val b1 = Board(intArrayOf(1,2,3,1,2,3,1,2,3))
@@ -179,3 +180,7 @@ fun testCombinations() {
         if (actual != expected) throw IllegalStateException("Combos was ${combinations(listOf(1,2,3,4))}")
 }
 
+fun testAllZeros() {
+    val board = Board(intArrayOf(6,6,6,6,6,6,6,6,0))
+    System.err.println(board.solve(10))
+}
