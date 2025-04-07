@@ -18,9 +18,9 @@ fun main(args: Array<String>) {
 
     System.err.println("Depth is: $depth")
     System.err.println("Initial board: ${initialBoard}")
-    testNeighboursOfCell()
-    testCombinations()
-    testMovesForCell()
+//    testNeighboursOfCell()
+//    testCombinations()
+//    testMovesForCell()
 
     println(initialBoard.solve(depth))
 }
@@ -43,9 +43,19 @@ data class Board(val cells: IntArray) {
     }
 
     fun solveForCell(depth: Int, cell: Int): Int {
+        return movesForCell(cell).fold(0) { acc, move ->
+            val newBoard = applyMove(move)
+            addHashes(acc, newBoard.solve(depth - 1))
+        }
+    }
+
+    fun applyMove(move: Move): Board {
         val newCells = cells.copyOf()
-        newCells[cell] = 1
-        return Board(newCells).solve(depth - 1)
+        newCells[move.cell] = move.value
+        move.captures.forEach {
+            newCells[it] = 0
+        }
+        return Board(newCells)
     }
 
 
