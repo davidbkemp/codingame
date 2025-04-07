@@ -49,18 +49,9 @@ data class Board(val cells: IntArray) {
     }
 
 
-    fun capturesForCell(cell: Int): List<List<Int>> {
-        val candidates = neighboursOfCell(cell).filter {
-            cells[it] > 0 && cells[it] < 6
-        }
-        return combinations(candidates)
-            .filter { it.size > 1}
-            .filter { it.map{ cells[it] }.sum() <= 6}
-    }
-
     fun movesForCell(cell: Int): List<Move> {
         val candidates = neighboursOfCell(cell).filter {
-            it > 0 && cells[it] < 6
+            cells[it] > 0 && cells[it] < 6
         }
         val capturingMoves = combinations(candidates)
             .map {
