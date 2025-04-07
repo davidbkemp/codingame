@@ -84,7 +84,6 @@ data class Board(val cells: IntArray) {
         }
     }
 
-
     fun isComplete(): Boolean = cells.all { it > 0 }
 
     val hash: Int = cells.fold(0) { acc, x -> addHashes(10 * acc, x) }
@@ -94,7 +93,7 @@ data class Board(val cells: IntArray) {
     override fun toString(): String = cells.toList().toString()
 }
 
-fun addHashes(h1: Int, h2: Int): Int = (h1.toLong() + h2.toLong()).mod(1 shl 30).toInt()
+fun addHashes(h1: Int, h2: Int): Int = (h1 + h2) % (1 shl 30)
 
 fun testHash() {
     val b1 = Board(intArrayOf(1,2,3,1,2,3,1,2,3))
