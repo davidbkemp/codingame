@@ -30,13 +30,14 @@ data class Move(val cell: Int, val captures: List<Int>, val value: Int)
 data class Board(val cells: IntArray) {
 
     fun solve(depth: Int): Int {
+//        System.err.println("depth $depth, board: $this")
         if (depth <= 0 || isComplete()) {
             return boardHash()
         } else {
             val emptyCells = (0 until cells.size).filter { cells[it] == 0 }
             val result: Int =
                     emptyCells.fold(0) { acc, cell ->
-                        addHashes(acc, solveForCell(depth - 1, cell))
+                        addHashes(acc, solveForCell(depth, cell))
                     }
             return result
         }
