@@ -20,9 +20,12 @@ fun main(args: Array<String>) {
     System.err.println("Initial board: ${initialBoard}")
     testNeighboursOfCell()
     testCombinations()
+    testMovesForCell()
 
     println(initialBoard.solve(depth))
 }
+
+data class Move(val cell: Int, val captures: List<Int>, val value: Int)
 
 data class Board(val cells: IntArray) {
 
@@ -45,14 +48,32 @@ data class Board(val cells: IntArray) {
         return Board(newCells).solve(depth - 1)
     }
 
-/** 
+
     fun capturesForCell(cell: Int): List<List<Int>> {
-        val canditates = neighboursOfCell(cell).filter {
-            it > 0 && it < 6
+        val candidates = neighboursOfCell(cell).filter {
+            cells[it] > 0 && cells[it] < 6
         }
-        val combos = combinations(candidates)
+        return combinations(candidates)
+            .filter { it.size > 1}
+            .filter { it.map{ cells[it] }.sum() <= 6}
     }
-*/
+
+    fun movesForCell(cell: Int): List<Move> {
+        val candidates = neighboursOfCell(cell).filter {
+            it > 0 && cells[it] < 6
+        }
+        val capturingMoves = combinations(candidates)
+            .map {
+                Move(cell, it, it.map{cells[it]}.sum())
+            }
+            .filter { it.captures.size > 1 && it.value <= 6 }
+        if (capturingMoves.size == 0) {
+            return listOf(Move(cell, emptyList(), 1))
+        } else {
+            return capturingMoves
+        }
+    }
+
 
     fun isComplete(): Boolean = cells.all { it > 0 }
 
@@ -62,6 +83,28 @@ data class Board(val cells: IntArray) {
 }
 
 fun addHashes(h1: Int, h2: Int): Int = (h1 + h2) % (1 shl 30)
+
+fun testMovesForCell() {
+    val moves = Board(intArrayOf(0, 1, 0, 2, 0, 3, 0, 4, 0)).movesForCell(4)
+    val actualCaptures = moves.map { it.captures.toSet() }.toSet()
+   System.err.println("moves $moves")
+    val expectedCaptures = setOf(
+        setOf(1, 3),
+        setOf(1, 5),
+        setOf(1, 7),
+        setOf(1, 3, 5),
+        setOf(3, 5),
+        setOf(3, 7)
+
+    )
+    val actualMinusExpected = actualCaptures - expectedCaptures
+    val expectedMinusActual = expectedCaptures - actualCaptures
+    if (actualMinusExpected.size != 0) throw IllegalStateException("capturesForCell actualMinusExpected $actualMinusExpected")
+    if (expectedMinusActual.size != 0) throw IllegalStateException("capturesForCell expectedMinusActual $expectedMinusActual")
+    val actualValues = moves.map { it.value }.toSet()
+    val expectedValues = setOf(3,4,5,6)
+    if (!actualValues.equals(expectedValues)) throw IllegalStateException("move values ${actualValues}")
+}
 
 fun neighboursOfCell(cell: Int): List<Int> {
     val result = ArrayList<Int>()
@@ -117,5 +160,4 @@ fun testCombinations() {
  //       System.err.println("expected: $expected")
         if (actual != expected) throw IllegalStateException("Combos was ${combinations(listOf(1,2,3,4))}")
 }
-
 
