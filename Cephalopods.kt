@@ -6,7 +6,7 @@ val BOARD_WIDTH = 3
 val BOARD_HEIGHT = 3
 val BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT
 
-val solutionCache: HashMap<Pair<Int, Int>, Int> = HashMap<Pair<Int, Int>, Int>()
+val solutionCache: HashMap<Pair<Int, UInt>, UInt> = HashMap<Pair<Int, UInt>, UInt>()
 
 
 /**
@@ -27,23 +27,25 @@ fun main(args: Array<String>) {
   //  testHash()
  //   testAllZeros()
 
-    println(initialBoard.solve(depth))
+
+    val result = initialBoard.solve(depth).mod(1u shl 30)
+    println(result)
 }
 
 data class Move(val cell: Int, val captures: List<Int>, val value: Int)
 
 data class Board(val cells: IntArray) {
 
-    fun solve(depth: Int): Int {
+    fun solve(depth: Int): UInt {
         val cacheKey = Pair(depth, this.hash)
         if (depth <= 0 || isComplete()) {
-            return hashCode()
+            return hash
         } else if (solutionCache.containsKey(cacheKey)) {
             return solutionCache[cacheKey]!!
         } else {
             val emptyCells = (0 until cells.size).filter { cells[it] == 0 }
-            val result: Int =
-                    emptyCells.fold(0) { acc, cell ->
+            val result: UInt =
+                    emptyCells.fold(0u) { acc, cell ->
                         addHashes(acc, solveForCell(depth, cell))
                     }
             solutionCache[cacheKey] = result
@@ -51,8 +53,8 @@ data class Board(val cells: IntArray) {
         }
     }
 
-    fun solveForCell(depth: Int, cell: Int): Int {
-        return movesForCell(cell).fold(0) { acc, move ->
+    fun solveForCell(depth: Int, cell: Int): UInt {
+        return movesForCell(cell).fold(0u) { acc, move ->
             val newBoard = applyMove(move)
             addHashes(acc, newBoard.solve(depth - 1))
         }
@@ -86,14 +88,12 @@ data class Board(val cells: IntArray) {
 
     fun isComplete(): Boolean = cells.all { it > 0 }
 
-    val hash: Int = cells.fold(0) { acc, x -> addHashes(10 * acc, x) }
-
-    override fun hashCode(): Int = hash
+    val hash: UInt = cells.fold(0u) { acc, x -> addHashes(10u * acc, x.toUInt()) }
 
     override fun toString(): String = cells.toList().toString()
 }
 
-fun addHashes(h1: Int, h2: Int): Int = (h1 + h2) % (1 shl 30)
+inline fun addHashes(h1: UInt, h2: UInt): UInt = (h1 + h2)// % (1 shl 30)
 
 fun testHash() {
     val b1 = Board(intArrayOf(1,2,3,1,2,3,1,2,3))
