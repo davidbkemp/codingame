@@ -30,14 +30,15 @@ data class Move(val cell: Int, val captures: List<Int>, val value: UInt)
 
 data class Board(val cells: UIntArray) {
 
+    val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
+
     fun solve(depth: Int): UInt {
         val cacheKey = Pair(depth, this.hash)
-        if (depth <= 0 || isComplete()) {
+        if (depth <= 0 || emptyCells.size == 0) {
             return hash
         } else if (solutionCache.containsKey(cacheKey)) {
             return solutionCache[cacheKey]!!
         } else {
-            val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
             val result: UInt =
                     emptyCells.fold(0u) { acc, cell ->
                         acc + solveForCell(depth, cell)
@@ -69,10 +70,11 @@ data class Board(val cells: UIntArray) {
             cells[it] > 0u && cells[it] < 6u
         }
         val capturingMoves = combinations(candidates)
+            .filter { it.size > 1 }
             .map {
                 Move(cell, it, it.map{cells[it]}.sum())
             }
-            .filter { it.captures.size > 1 && it.value <= 6u }
+            .filter { it.value <= 6u }
         if (capturingMoves.size == 0) {
             return listOf(Move(cell, emptyList(), 1u))
         } else {
