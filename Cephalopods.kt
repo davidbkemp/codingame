@@ -25,9 +25,9 @@ fun main(args: Array<String>) {
     println(result)
 }
 
-data class Move(val cell: Int, val captures: List<Int>, val value: UInt)
-
 data class Board(val cells: UIntArray) {
+
+    private data class Move(val cell: Int, val captures: List<Int>, val value: UInt)
 
     private val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
 
@@ -38,7 +38,7 @@ data class Board(val cells: UIntArray) {
             val cacheKey = Pair(depth, this.hash)
             val cachedSolution = solutionCache[cacheKey]
             if (cachedSolution != null) {
-                return solutionCache[cacheKey]!!
+                return cachedSolution
             } else {
                 val result: UInt =
                     emptyCells.fold(0u) { acc, cell ->
@@ -50,14 +50,14 @@ data class Board(val cells: UIntArray) {
         }
     }
 
-    private fun solveForCell(depth: Int, cell: Int): UInt {
+    private inline fun solveForCell(depth: Int, cell: Int): UInt {
         return movesForCell(cell).fold(0u) { acc, move ->
             val newBoard = applyMove(move)
             acc + newBoard.solve(depth - 1)
         }
     }
 
-    private fun applyMove(move: Move): Board {
+    private inline fun applyMove(move: Move): Board {
         val newCells = cells.copyOf()
         newCells[move.cell] = move.value
         move.captures.forEach {
@@ -66,8 +66,7 @@ data class Board(val cells: UIntArray) {
         return Board(newCells)
     }
 
-
-    private fun movesForCell(cell: Int): List<Move> {
+    private inline fun movesForCell(cell: Int): List<Move> {
         val candidates = neighboursOfCell(cell).filter {
             cells[it] > 0u && cells[it] < 6u
         }
@@ -84,31 +83,30 @@ data class Board(val cells: UIntArray) {
         }
     }
 
-    private fun isComplete(): Boolean = cells.all { it > 0u }
-
     private val hash: UInt = cells.fold(0u) { acc, x -> 10u * acc + x}
 
     override fun toString(): String = cells.toList().toString()
-}
 
-fun neighboursOfCell(cell: Int): List<Int> {
-    val result = ArrayList<Int>()
-    if (cell >= BOARD_WIDTH ) result.add(cell - BOARD_WIDTH)
-    if (cell < BOARD_SIZE - BOARD_WIDTH) result.add(cell + BOARD_WIDTH)
-    if (cell % BOARD_WIDTH > 0) result.add(cell - 1)
-    if (cell % BOARD_WIDTH < BOARD_WIDTH - 1) result.add(cell + 1)
-    return result
-}
+    private inline fun neighboursOfCell(cell: Int): List<Int> {
+        val result = ArrayList<Int>()
+        if (cell >= BOARD_WIDTH ) result.add(cell - BOARD_WIDTH)
+        if (cell < BOARD_SIZE - BOARD_WIDTH) result.add(cell + BOARD_WIDTH)
+        if (cell % BOARD_WIDTH > 0) result.add(cell - 1)
+        if (cell % BOARD_WIDTH < BOARD_WIDTH - 1) result.add(cell + 1)
+        return result
+    }
 
-fun combinations(items: List<Int>): List<List<Int>> {
-    if (items.size == 0) {
-        return emptyList()
-    } else {
-        val head: Int = items.first()
-        val tail: List<Int> = items.takeLast(items.size - 1)
-        val tailCombinations: List<List<Int>> = combinations(tail)
-        return listOf(listOf(head))
-            .plus(tailCombinations)
-            .plus(tailCombinations.map{it.plus(head)})
+    private fun combinations(items: List<Int>): List<List<Int>> {
+        if (items.size == 0) {
+            return emptyList()
+        } else {
+            val head: Int = items.first()
+            val tail: List<Int> = items.takeLast(items.size - 1)
+            val tailCombinations: List<List<Int>> = combinations(tail)
+            return listOf(listOf(head))
+                .plus(tailCombinations)
+                .plus(tailCombinations.map{it.plus(head)})
+        }
     }
 }
+
