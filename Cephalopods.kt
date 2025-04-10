@@ -8,7 +8,6 @@ val BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT
 
 val solutionCache: HashMap<Pair<Int, UInt>, UInt> = HashMap<Pair<Int, UInt>, UInt>()
 
-
 /**
  * Auto-generated code below aims at helping you parse the standard input according to the problem
  * statement.
@@ -30,32 +29,35 @@ data class Move(val cell: Int, val captures: List<Int>, val value: UInt)
 
 data class Board(val cells: UIntArray) {
 
-    val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
+    private val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
 
     fun solve(depth: Int): UInt {
-        val cacheKey = Pair(depth, this.hash)
         if (depth <= 0 || emptyCells.size == 0) {
             return hash
-        } else if (solutionCache.containsKey(cacheKey)) {
-            return solutionCache[cacheKey]!!
         } else {
-            val result: UInt =
+            val cacheKey = Pair(depth, this.hash)
+            val cachedSolution = solutionCache[cacheKey]
+            if (cachedSolution != null) {
+                return solutionCache[cacheKey]!!
+            } else {
+                val result: UInt =
                     emptyCells.fold(0u) { acc, cell ->
                         acc + solveForCell(depth, cell)
                     }
-            solutionCache[cacheKey] = result
-            return result
+                solutionCache[cacheKey] = result
+                return result
+            }
         }
     }
 
-    fun solveForCell(depth: Int, cell: Int): UInt {
+    private fun solveForCell(depth: Int, cell: Int): UInt {
         return movesForCell(cell).fold(0u) { acc, move ->
             val newBoard = applyMove(move)
             acc + newBoard.solve(depth - 1)
         }
     }
 
-    fun applyMove(move: Move): Board {
+    private fun applyMove(move: Move): Board {
         val newCells = cells.copyOf()
         newCells[move.cell] = move.value
         move.captures.forEach {
@@ -65,7 +67,7 @@ data class Board(val cells: UIntArray) {
     }
 
 
-    fun movesForCell(cell: Int): List<Move> {
+    private fun movesForCell(cell: Int): List<Move> {
         val candidates = neighboursOfCell(cell).filter {
             cells[it] > 0u && cells[it] < 6u
         }
@@ -82,9 +84,9 @@ data class Board(val cells: UIntArray) {
         }
     }
 
-    fun isComplete(): Boolean = cells.all { it > 0u }
+    private fun isComplete(): Boolean = cells.all { it > 0u }
 
-    val hash: UInt = cells.fold(0u) { acc, x -> 10u * acc + x}
+    private val hash: UInt = cells.fold(0u) { acc, x -> 10u * acc + x}
 
     override fun toString(): String = cells.toList().toString()
 }
