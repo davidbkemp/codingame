@@ -89,49 +89,51 @@ data class Board(val cells: UIntArray) {
 
 }
 
-    inline fun neighboursOfCell(cell: Int): List<Int> {
-        val result = ArrayList<Int>()
-        if (cell >= BOARD_WIDTH ) result.add(cell - BOARD_WIDTH)
-        if (cell < BOARD_SIZE - BOARD_WIDTH) result.add(cell + BOARD_WIDTH)
-        if (cell % BOARD_WIDTH > 0) result.add(cell - 1)
-        if (cell % BOARD_WIDTH < BOARD_WIDTH - 1) result.add(cell + 1)
-        return result
-    }
-    
-val neighbours: Map<Int, List<Int>> = (0 until BOARD_SIZE).map { it to neighboursOfCell(it)}.toMap()
+inline fun neighboursOfCell(cell: Int): List<Int> {
+  val result = ArrayList < Int > ()
+  if (cell >= BOARD_WIDTH) result.add(cell - BOARD_WIDTH)
+  if (cell < BOARD_SIZE - BOARD_WIDTH) result.add(cell + BOARD_WIDTH)
+  if (cell % BOARD_WIDTH > 0) result.add(cell - 1)
+  if (cell % BOARD_WIDTH < BOARD_WIDTH - 1) result.add(cell + 1)
+  return result
+}
 
-    private fun combinations(items: List<Int>): List<List<Int>> {
-        return when (items.size) {
-            0 -> emptyList()
-            1 -> emptyList()
-            2 -> listOf(items)
-            3 -> {
-                val arr = items.toIntArray()
-                listOf(
-                    listOf(arr[0], arr[1]),
-                    listOf(arr[0], arr[2]),
-                    listOf(arr[1], arr[2]),
-                    items
-                )
-            }
-            4 -> {
-                val arr = items.toIntArray()
-                listOf(
-                items,
-                listOf(arr[0], arr[1]),
-                listOf(arr[0], arr[2]),
-                listOf(arr[0], arr[3]),
-                listOf(arr[1], arr[2]),
-                listOf(arr[1], arr[3]),
-                listOf(arr[2], arr[3]),
-                listOf(arr[0], arr[1], arr[2]),
-                listOf(arr[0], arr[1], arr[3]),
-                listOf(arr[0], arr[2], arr[3]),
-                listOf(arr[1], arr[2], arr[3])
-                )
-            }
-            else -> throw IllegalStateException("Too many items $items")
-        }
-    }
+val neighbours: Map < Int, List < Int >> = (0 until BOARD_SIZE).map {
+  it to neighboursOfCell(it)
+}.toMap()
 
+private fun combinations(items: List < Int > ): List < List < Int >> {
+  return when(items.size) {
+    0 - > emptyList()
+    1 - > emptyList()
+    2 - > listOf(items)
+    3 - > {
+      val arr = items.toIntArray()
+      listOf(
+        listOf(arr[0], arr[1]),
+        listOf(arr[0], arr[2]),
+        listOf(arr[1], arr[2]),
+        items
+      )
+    }
+    4 - > {
+      val arr = items.toIntArray()
+      listOf(
+        items,
+        listOf(arr[0], arr[1]),
+        listOf(arr[0], arr[2]),
+        listOf(arr[0], arr[3]),
+        listOf(arr[1], arr[2]),
+        listOf(arr[1], arr[3]),
+        listOf(arr[2], arr[3]),
+        listOf(arr[0], arr[1], arr[2]),
+        listOf(arr[0], arr[1], arr[3]),
+        listOf(arr[0], arr[2], arr[3]),
+        listOf(arr[1], arr[2], arr[3])
+      )
+    }
+    else - >
+      throw IllegalStateException("Too many items $items")
+  }
+}
 
