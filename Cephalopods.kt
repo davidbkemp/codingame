@@ -8,6 +8,7 @@ val BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT
 
 val solutionCache: HashMap<Pair<Int, UInt>, UInt> = HashMap<Pair<Int, UInt>, UInt>()
 
+
 /**
  * Auto-generated code below aims at helping you parse the standard input according to the problem
  * statement.
@@ -67,11 +68,10 @@ data class Board(val cells: UIntArray) {
     }
 
     private inline fun movesForCell(cell: Int): List<Move> {
-        val candidates = neighboursOfCell(cell).filter {
+        val candidates = neighbours[cell]!!.filter {
             cells[it] > 0u && cells[it] < 6u
         }
         val capturingMoves = combinations(candidates)
-            .filter { it.size > 1 }
             .map {
                 Move(cell, it, it.map{cells[it]}.sum())
             }
@@ -87,7 +87,9 @@ data class Board(val cells: UIntArray) {
 
     override fun toString(): String = cells.toList().toString()
 
-    private inline fun neighboursOfCell(cell: Int): List<Int> {
+}
+
+    inline fun neighboursOfCell(cell: Int): List<Int> {
         val result = ArrayList<Int>()
         if (cell >= BOARD_WIDTH ) result.add(cell - BOARD_WIDTH)
         if (cell < BOARD_SIZE - BOARD_WIDTH) result.add(cell + BOARD_WIDTH)
@@ -95,18 +97,41 @@ data class Board(val cells: UIntArray) {
         if (cell % BOARD_WIDTH < BOARD_WIDTH - 1) result.add(cell + 1)
         return result
     }
+    
+val neighbours: Map<Int, List<Int>> = (0 until BOARD_SIZE).map { it to neighboursOfCell(it)}.toMap()
 
     private fun combinations(items: List<Int>): List<List<Int>> {
-        if (items.size == 0) {
-            return emptyList()
-        } else {
-            val head: Int = items.first()
-            val tail: List<Int> = items.takeLast(items.size - 1)
-            val tailCombinations: List<List<Int>> = combinations(tail)
-            return listOf(listOf(head))
-                .plus(tailCombinations)
-                .plus(tailCombinations.map{it.plus(head)})
+        return when (items.size) {
+            0 -> emptyList()
+            1 -> emptyList()
+            2 -> listOf(items)
+            3 -> {
+                val arr = items.toIntArray()
+                listOf(
+                    listOf(arr[0], arr[1]),
+                    listOf(arr[0], arr[2]),
+                    listOf(arr[1], arr[2]),
+                    items
+                )
+            }
+            4 -> {
+                val arr = items.toIntArray()
+                listOf(
+                items,
+                listOf(arr[0], arr[1]),
+                listOf(arr[0], arr[2]),
+                listOf(arr[0], arr[3]),
+                listOf(arr[1], arr[2]),
+                listOf(arr[1], arr[3]),
+                listOf(arr[2], arr[3]),
+                listOf(arr[0], arr[1], arr[2]),
+                listOf(arr[0], arr[1], arr[3]),
+                listOf(arr[0], arr[2], arr[3]),
+                listOf(arr[1], arr[2], arr[3])
+                )
+            }
+            else -> throw IllegalStateException("Too many items $items")
         }
     }
-}
+
 
