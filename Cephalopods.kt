@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
     System.err.println("Depth is: $depth")
     System.err.println("Initial board: ${initialBoard}")
 
-    val result = initialBoard.solve(depth).mod(1u shl 30)
+    val result = if (depth == 0 || initialBoard.emptyCells.size == 0) initialBoard.hash else initialBoard.solve(depth).mod(1u shl 30)
     println(result)
 }
 
@@ -30,12 +30,9 @@ data class Board(val cells: UIntArray) {
 
     private data class Move(val cell: Int, val captures: List<Int>, val value: UInt)
 
-    private val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
+    val emptyCells = (0 until cells.size).filter { cells[it] == 0u }
 
     fun solve(depth: Int): UInt {
-        if (emptyCells.size == 0) {
-            return hash
-        } else {
             val cacheKey = Pair(depth, this.hash)
             val cachedSolution = solutionCache[cacheKey]
             if (cachedSolution != null) {
@@ -48,13 +45,13 @@ data class Board(val cells: UIntArray) {
                 solutionCache[cacheKey] = result
                 return result
             }
-        }
+        
     }
 
     private inline fun solveForCell(depth: Int, cell: Int): UInt {
         return movesForCell(cell).fold(0u) { acc, move ->
             val newBoard = applyMove(move)
-            if (depth > 1) acc + newBoard.solve(depth - 1) else (acc + newBoard.hash)
+            if (depth > 1 && newBoard.emptyCells.size > 0) acc + newBoard.solve(depth - 1) else (acc + newBoard.hash)
         }
     }
 
@@ -83,7 +80,7 @@ data class Board(val cells: UIntArray) {
         }
     }
 
-    private val hash: UInt = cells.fold(0u) { acc, x -> 10u * acc + x}
+    val hash: UInt = cells.fold(0u) { acc, x -> 10u * acc + x}
 
     override fun toString(): String = cells.toList().toString()
 
@@ -117,17 +114,17 @@ val neighbours: Map<Int, List<Int>> = (0 until BOARD_SIZE).map { it to neighbour
             4 -> {
                 val arr = items.toIntArray()
                 listOf(
-                items,
-                listOf(arr[0], arr[1]),
-                listOf(arr[0], arr[2]),
-                listOf(arr[0], arr[3]),
-                listOf(arr[1], arr[2]),
-                listOf(arr[1], arr[3]),
-                listOf(arr[2], arr[3]),
-                listOf(arr[0], arr[1], arr[2]),
-                listOf(arr[0], arr[1], arr[3]),
-                listOf(arr[0], arr[2], arr[3]),
-                listOf(arr[1], arr[2], arr[3])
+                  items,
+                  listOf(arr[0], arr[1]),
+                  listOf(arr[0], arr[2]),
+                  listOf(arr[0], arr[3]),
+                  listOf(arr[1], arr[2]),
+                  listOf(arr[1], arr[3]),
+                  listOf(arr[2], arr[3]),
+                  listOf(arr[0], arr[1], arr[2]),
+                  listOf(arr[0], arr[1], arr[3]),
+                  listOf(arr[0], arr[2], arr[3]),
+                  listOf(arr[1], arr[2], arr[3])
                 )
             }
             else -> throw IllegalStateException("Too many items $items")
