@@ -90,7 +90,7 @@ data class Board(val cells: UIntArray) {
 }
 
     inline fun neighboursOfCell(cell: Int): List<Int> {
-        val result = ArrayList<Int>(4)
+        val result = ArrayList<Int>()
         if (cell >= BOARD_WIDTH ) result.add(cell - BOARD_WIDTH)
         if (cell < BOARD_SIZE - BOARD_WIDTH) result.add(cell + BOARD_WIDTH)
         if (cell % BOARD_WIDTH > 0) result.add(cell - 1)
