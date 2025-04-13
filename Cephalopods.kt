@@ -98,7 +98,7 @@ data class Board(val cells: UIntArray) {
         return result
     }
 
-val neighbours: Map<Int, List<Int>> = (0 until BOARD_SIZE).map { it to neighboursOfCell(it)}.toMap()
+    val neighbours: Array<List<Int>> = Array<List<Int>>(BOARD_SIZE) {i -> neighboursOfCell(i)}
 
     private fun combinations(items: List<Int>): List<List<Int>> {
         return when (items.size) {
