@@ -21,39 +21,39 @@ fun main(args : Array<String>) {
     val iterA = vectorA.iterator()
     val iterB = vectorB.iterator()
 
-    var seqA = iterA.nextOrNull()
-    var seqB = iterB.nextOrNull()
+    var runLengthA = iterA.nextOrNull()
+    var runLengthB = iterB.nextOrNull()
 
     var result: Long = 0L
 
-    while (seqA != null && seqB != null) {
-        if (seqA.freq == seqB.freq) {
-            result += seqA.freq * seqA.value * seqB.value
-            seqA = iterA.nextOrNull()
-            seqB = iterB.nextOrNull()
-        } else if (seqA.freq < seqB.freq) {
-            result += seqA.freq * seqA.value * seqB.value
-            seqB = seqB.copy(freq = seqB.freq - seqA.freq)
-            seqA = iterA.nextOrNull()
+    while (runLengthA != null && runLengthB != null) {
+        if (runLengthA.count == runLengthB.count) {
+            result += runLengthA.count * runLengthA.value * runLengthB.value
+            runLengthA = iterA.nextOrNull()
+            runLengthB = iterB.nextOrNull()
+        } else if (runLengthA.count < runLengthB.count) {
+            result += runLengthA.count * runLengthA.value * runLengthB.value
+            runLengthB = runLengthB.copy(count = runLengthB.count - runLengthA.count)
+            runLengthA = iterA.nextOrNull()
         } else {
-            result += seqB.freq * seqA.value * seqB.value
-            seqA = seqA.copy(freq = seqA.freq - seqB.freq)
-            seqB = iterB.nextOrNull()
+            result += runLengthB.count * runLengthA.value * runLengthB.value
+            runLengthA = runLengthA.copy(count = runLengthA.count - runLengthB.count)
+            runLengthB = iterB.nextOrNull()
         }
     }
 
     println(result)
 }
 
-data class NumSequence(val value: Long, val freq: Long)
+data class RunLengthBlock(val value: Long, val count: Long)
 
-fun parseVector(str: String): List<NumSequence> {
+fun parseVector(str: String): List<RunLengthBlock> {
     val tokenIter = str.split(' ').map { it.toLong() }.iterator()
-    val result = ArrayList<NumSequence>()
+    val result = ArrayList<RunLengthBlock>()
     while (tokenIter.hasNext()) {
-        val frequency = tokenIter.next()
+        val count = tokenIter.next()
         val value = tokenIter.next()
-        result.add(NumSequence(value = value, freq = frequency))
+        result.add(RunLengthBlock(value = value, count = count))
     }
     return result
 }
