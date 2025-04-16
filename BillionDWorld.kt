@@ -27,17 +27,17 @@ fun main(args : Array<String>) {
     var result: Long = 0L
 
     while (runLengthA != null && runLengthB != null) {
-        if (runLengthA.count == runLengthB.count) {
-            result += runLengthA.count * runLengthA.value * runLengthB.value
+        if (runLengthA.length == runLengthB.length) {
+            result += runLengthA.length * runLengthA.value * runLengthB.value
             runLengthA = iterA.nextOrNull()
             runLengthB = iterB.nextOrNull()
-        } else if (runLengthA.count < runLengthB.count) {
-            result += runLengthA.count * runLengthA.value * runLengthB.value
-            runLengthB = runLengthB.copy(count = runLengthB.count - runLengthA.count)
+        } else if (runLengthA.length < runLengthB.length) {
+            result += runLengthA.length * runLengthA.value * runLengthB.value
+            runLengthB = runLengthB.copy(length = runLengthB.length - runLengthA.length)
             runLengthA = iterA.nextOrNull()
         } else {
-            result += runLengthB.count * runLengthA.value * runLengthB.value
-            runLengthA = runLengthA.copy(count = runLengthA.count - runLengthB.count)
+            result += runLengthB.length * runLengthA.value * runLengthB.value
+            runLengthA = runLengthA.copy(length = runLengthA.length - runLengthB.length)
             runLengthB = iterB.nextOrNull()
         }
     }
@@ -45,15 +45,15 @@ fun main(args : Array<String>) {
     println(result)
 }
 
-data class RunLengthBlock(val value: Long, val count: Long)
+data class RunLengthBlock(val value: Long, val length: Long)
 
 fun parseVector(str: String): List<RunLengthBlock> {
     val tokenIter = str.split(' ').map { it.toLong() }.iterator()
     val result = ArrayList<RunLengthBlock>()
     while (tokenIter.hasNext()) {
-        val count = tokenIter.next()
+        val length = tokenIter.next()
         val value = tokenIter.next()
-        result.add(RunLengthBlock(value = value, count = count))
+        result.add(RunLengthBlock(value = value, length = length))
     }
     return result
 }
