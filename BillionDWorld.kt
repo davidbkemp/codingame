@@ -2,6 +2,7 @@ import java.util.*
 import java.io.*
 import java.math.*
 
+
 /**
  * Auto-generated code below aims at helping you parse
  * the standard input according to the problem statement.
@@ -11,38 +12,33 @@ fun main(args : Array<String>) {
     val a = input.nextLine()
     val b = input.nextLine()
 
-    // Write an answer using println()
-    // To debug: System.err.println("Debug messages...");
-
     System.err.println(a)
     System.err.println(b)
 
     val vectorA = parseVector(a)
     val vectorB = parseVector(b)
 
-    System.err.println(vectorA)
-    System.err.println(vectorB)
-
     val iterA = vectorA.iterator()
     val iterB = vectorB.iterator()
-    var seqA = nextOrNull(iterA)
-    var seqB = nextOrNull(iterB)
+
+    var seqA = iterA.nextOrNull()
+    var seqB = iterB.nextOrNull()
 
     var result: Long = 0L
 
     while (seqA != null && seqB != null) {
         if (seqA.freq == seqB.freq) {
             result += seqA.freq * seqA.value * seqB.value
-            seqA = nextOrNull(iterA)
-            seqB = nextOrNull(iterB)
+            seqA = iterA.nextOrNull()
+            seqB = iterB.nextOrNull()
         } else if (seqA.freq < seqB.freq) {
             result += seqA.freq * seqA.value * seqB.value
             seqB = seqB.copy(freq = seqB.freq - seqA.freq)
-            seqA = nextOrNull(iterA)
+            seqA = iterA.nextOrNull()
         } else {
             result += seqB.freq * seqA.value * seqB.value
             seqA = seqA.copy(freq = seqA.freq - seqB.freq)
-            seqB = nextOrNull(iterB)
+            seqB = iterB.nextOrNull()
         }
     }
 
@@ -62,5 +58,6 @@ fun parseVector(str: String): List<NumSequence> {
     return result
 }
 
-fun <T>nextOrNull(iterator: Iterator<T>): T? = 
-    if (iterator.hasNext()) iterator.next() else null
+fun <T> Iterator<T>.nextOrNull(): T? = 
+    if (this.hasNext()) this.next() else null
+
