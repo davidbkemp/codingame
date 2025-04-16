@@ -2,6 +2,11 @@ import java.util.*
 import java.io.*
 import java.math.*
 
+data class RunLengthBlock(val length: Long, val value: Long)
+
+fun <T> Iterator<T>.nextOrNull(): T? = 
+    if (this.hasNext()) this.next() else null
+
 
 /**
  * Auto-generated code below aims at helping you parse
@@ -45,19 +50,11 @@ fun main(args : Array<String>) {
     println(result)
 }
 
-data class RunLengthBlock(val value: Long, val length: Long)
+fun parseVector(str: String): List<RunLengthBlock> =
+    str.split(' ')
+        .map { it.toLong() }
+        .chunked(2)
+        .map { RunLengthBlock(length = it[0], value = it[1])}
 
-fun parseVector(str: String): List<RunLengthBlock> {
-    val tokenIter = str.split(' ').map { it.toLong() }.iterator()
-    val result = ArrayList<RunLengthBlock>()
-    while (tokenIter.hasNext()) {
-        val length = tokenIter.next()
-        val value = tokenIter.next()
-        result.add(RunLengthBlock(value = value, length = length))
-    }
-    return result
-}
 
-fun <T> Iterator<T>.nextOrNull(): T? = 
-    if (this.hasNext()) this.next() else null
 
